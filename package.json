@@ -1,0 +1,14 @@
+{
+  "name": "your-project-name",
+  "version": "1.0.0",
+  "main": "tasks",
+  "type": "module",
+  "scripts": {
+    "start": "node tasks/task_2.js"
+  },
+  "dependencies": {
+    "cli-table3": "^0.6.5",
+    "crypto-js": "^4.2.0",
+    "js-sha3": "^0.9.3"
+  }
+}
