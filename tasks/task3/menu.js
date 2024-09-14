@@ -1,11 +1,10 @@
  class Menu {
-    constructor(moves) {
-        this.moves = moves;
+    constructor() {
     }
 
-    create() {
+    create(moves) {
         console.log(`Available moves:`);
-        this.moves.forEach((move, index) => {
+        moves.forEach((move, index) => {
            console.log((index + 1 ) + ' - ' + move);
         });
         console.log('0 - exit');

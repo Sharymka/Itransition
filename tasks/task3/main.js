@@ -1,93 +1,93 @@
 import Menu from "./menu.js";
 import crypto from "node:crypto";
-import RendomMove from "./randomMove.js";
 import Hasher from "./hasher.js";
 import Judge from "./judge.js";
 import readline from "node:readline";
 import TableGenerator from "./table.js";
+import ArgvValidator from "./argvValidator.js";
 
 let moves = process.argv.slice(2);
+let url = 'https://www.freeformatter.com/hmac-generator.html#before-output';
 
-if(moves.length < 3 || moves.length % 2  === 0 ) {
-   console.error(`Amount of moves should be an odd number more or equal 3`);
-   process.exit(1);
-}
-//генерируем ход компьютера, ключ и делаем HMAC, выводим в консоль
+// Валидация аргументов
+let validator = new ArgvValidator();
+validator.isValidLength(moves);
+validator.isOdd(moves);
+validator.isDublicate(moves);
+
+// Генерация ключа и хода компьютера
 let key = crypto.randomBytes(32).toString('hex');
-let randomMove = new RendomMove(moves);
-let computerMove = randomMove.get();
-
-
-console.log('real computer move ');
-console.log(computerMove);
-
-//создаем хеш на основе ключа и строки (ход компьютера)
+let randomNumber = Math.floor(Math.random() * moves.length);
+let computerMove = moves[randomNumber];
 let hasher = new Hasher();
 let computerMoveHash = hasher.getHash(computerMove, key);
 
 console.log("HMAC: " + computerMoveHash);
 
 // отображаем меню с вариантами ходов
-let menu = new Menu(moves);
-menu.create();
+let menu = new Menu();
+menu.create(moves);
 
-//игрок делает ход
+//инициализация readline
 let rl = readline.createInterface({
    input: process.stdin,
    output: process.stdout
 });
 
-  rl.question('Enter your move: ', (input) => {
-      let userInput = input;
-      let userMove = '';
-      let computerMove = '';
 
-     if(userInput === '?') {
+// Запрос ввода хода у пользователя
+function askMove() {
+   rl.question('Enter your move: ', (input) => {
 
-        const table = new TableGenerator(moves);
-        table.createTable(moves);
-        table.printTable();
+      if(input === '?') {
+         displayTable();
+         askMove();
+      } else if (parseInt(input) === 0) {
+         process.exit(1);
+      } else if (parseInt(input) >= 1 && parseInt(input) <= moves.length) {
+         handelUserMove(input);
+      } else {
+         console.log('Invalid choice. Please enter a valid number.');
+         menu.create(moves);
+         askMove();
+      }
 
-     } else if (parseInt(userInput) === 0) {
-        process.exit(1);
+   });
+}
 
-     } else if (parseInt(userInput) >= 1 && parseInt(userInput) <= moves.length) {
-        userMove = parseInt(userInput) - 1;
+// Отображение таблицы
+function displayTable() {
+   const table = new TableGenerator(moves);
+   table.createTable(moves);
+   table.printTable();
+}
 
-        console.log(`Your move: ${moves[parseInt(userInput) - 1]}`);
+function handelUserMove(userInput) {
 
-        moves.forEach((move, index)=> {
-           let hash = hasher.getHash(move, key);
+   let userMove = parseInt(userInput) - 1;
+   let computerMove = null;
 
-           if(computerMoveHash === hash){
+   console.log(`Your move: ${moves[userMove]}`);
 
-              computerMove = index;
-              console.log('Computer move:' + move);
+   //находим ход компьютера по HMAC
+   moves.forEach((move, index)=> {
+      let hash = hasher.getHash(move, key);
+      if(computerMoveHash === hash){
+         computerMove = index;
+         console.log('Computer move:' + move);
+      }
+   })
 
-           }
-        })
+   // определяем победителя
+   let judge = new Judge(moves);
+   let result = judge.getResult(userMove, computerMove);
+   console.log('You ' + result + '!');
+   console.log('HMAC key: ' + key);
+   console.log('here the link to check HMAC: ' + url);
+   rl.close();
+}
 
-        let judge = new Judge(userMove, computerMove, moves);
-        let result = judge.getResult();
-        console.log('You ' + result + '!');
-        rl.close();
-
-     } else {
-        console.log('Invalid choice. Please enter a valid number.');
-        // this.rl.close();  // Можно повторить ввод вместо завершения
-     }
-
-
-
-
-  });
-
-// let input = new Input();
-// let inputData = input.get();
-
-//обрабатывает ввод пользователя
-
-// let judge = new Judge(moves, inputData, computerMoveHash, key);
+askMove();
 
 
 

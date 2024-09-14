@@ -1,21 +1,21 @@
 
-
+import {GAME_STATUS} from "./const.js";
 class Judge {
-    constructor(userMove, computerMove, moves) {
-        this.cMove = computerMove;
-        this.uMove = userMove;
+    constructor(moves) {
         this.moves = moves;
-
     }
 
-    getResult() {
+    getResult(uMove, cMove) {
 
-        if(this.uMove === this.cMove){
-            return 'draw';
-        }else if (this.uMove > this.cMove && this.uMove - this.cMove > this.moves.length - 1/2 || this.uMove < this.cMove && this.cMove - this.uMove < this.moves.length - 1/2){
-            return 'win';
-        } else if (this.uMove > this.cMove && this.uMove - this.cMove < this.moves.length - 1/2 || this.uMove < this.cMove && this.cMove - this.uMove > this.moves.length - 1/2) {
-            return 'lose';
+        if (uMove === cMove) {
+            return GAME_STATUS.DRAW;
+        } else if (
+            (uMove > cMove && uMove - cMove > this.moves.length / 2) ||
+            (uMove < cMove && cMove - uMove <= this.moves.length / 2)
+        ) {
+            return GAME_STATUS.LOSE;
+        } else {
+            return GAME_STATUS.WIN;
         }
     }
 }

@@ -1,23 +1,33 @@
 import Table from 'cli-table3';
+import Judge from "./judge.js";
+import {PLAYERS} from "./const.js";
 
 class TableGenerator {
-    constructor() {
-
+    constructor(moves) {
+        this.moves = moves;
+        this.judge = new Judge(moves);
         this.table = null;
     }
 
     createTable() {
+
         this.table = new Table({
-            head: ['v PC\\User', 'Rock', 'Paper', '3rd move', '4th', '5th']
+            head: this.createHead(),
         });
 
-        this.table.push(
-            ['Rock', 'Draw', 'Win', 'Win', 'Lose', 'Lose'],
-            ['Paper', 'Lose', 'Draw', 'Win', 'Win', 'Lose'],
-            ['3rd move', 'Lose', 'Lose', 'Draw', 'Win', 'Win'],
-            ['4th', 'Win', 'Lose', 'Lose', 'Draw', 'Win'],
-            ['5th', 'Win', 'Win', 'Lose', 'Lose', 'Draw']
-        );
+        this.table.push(...this.createBody());
+
+    }
+
+    createHead() {
+        return [PLAYERS, ...this.moves];
+    }
+
+    createBody() {
+        return this.moves.map((cMove, i) => [
+            cMove,
+            ...this.moves.map((uMove, j) => this.judge.getResult(j, i))
+        ]);
     }
 
     printTable() {
