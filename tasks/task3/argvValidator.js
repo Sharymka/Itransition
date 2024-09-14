@@ -1,7 +1,10 @@
 class ArgvValidator {
 
     isValidLength(inputData) {
-        if(inputData.length < 3) {
+        if(inputData.length === 0) {
+            console.error(`Enter moves`);
+            process.exit(1);
+        }else if(inputData.length < 3) {
             console.error(`Amount of moves should be more or equal 3`);
             process.exit(1);
         }
